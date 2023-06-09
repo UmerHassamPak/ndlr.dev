@@ -1,0 +1,24 @@
+{
+  "name": "ndlr",
+  "version": "0.0.1",
+  "description": "Nodular is a web API framwork, designed to automate away the tedious mundane task of building the same REST controllers that are used in every API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Umer Hassam",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Umer-Hassam/ndlr"
+  },
+  "keywords": [
+    "node",
+    "backend",
+    "API",
+    "framework"
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
