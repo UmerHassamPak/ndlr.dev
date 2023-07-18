@@ -1,0 +1,154 @@
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    </head>
+    <body>
+        <style>
+            .overlay{
+                background-color: black;
+                width:100%;
+                height:100%;
+                position:absolute;
+                z-index: 100;
+                x:0;
+            }
+            #ndlr_notifications{
+                position:absolute;
+                top: 10;
+                left: 50%;
+                transform: translate(-50%, 0);
+            }
+            .ndlr_noti_container{
+                background: #EEE;
+                padding: 8px 26px;
+                margin-bottom:6px;
+                position: relative;
+                text-align: center;
+                border-radius: 6px;
+                border: 1px solid #CCC;
+
+                display:flex;
+            }
+            .ndlr_noti_err_container{
+                background-color: rgb(227, 142, 142);
+            }
+            .ndlr-noti-msg{
+
+            }
+            .ndlr-noti-actions{
+                padding: 0px 0px 0px 10px;
+            }
+            .ndlr-noti-action-link{
+                cursor:pointer;
+            }
+        </style>
+        <script>
+            function nlog(is_error, message, silent = true, obj_to_log){
+                // Create TimeStamp
+                var dt = new Date();
+                var ts = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
+
+                // Create obj_to_log_s
+                var obj_to_log_s = ((typeof obj_to_log != 'undefined') ? JSON.stringify(obj_to_log) : "");
+
+                // Create console log string
+                var log_string = "[NLL - "+ ts + "] " + message + "  - " + obj_to_log_s;
+
+                if (is_error){
+                    console.error( log_string );
+                } else {
+                    console.log( log_string );
+                }
+
+                if (!silent){
+
+                    $("#ndlr_notifications").prepend("<div class='ndlr_noti_container "+(is_error ? "ndlr_noti_err_container" : "")+"'><div class='ndlr-noti-msg'>Request Failed "+$(".ndlr_noti_container").length+": "+message+"</div><div class='ndlr-noti-actions'><span class='ndlr-noti-action-link'>X</div></div></div>");
+                
+                    $(".ndlr-noti-action-link").unbind();
+                    $(".ndlr-noti-action-link").click(function(){
+                        $(this).parent().parent().remove();
+                    });
+
+                }
+                
+            }
+            function load_lazy(elem){
+                
+                var nll_component_id = elem.attr('nll-component-id');
+                var nll_href = elem.attr('href');
+
+                nlog(false, "Began Lazy loading for: " + nll_href);
+
+                if (typeof nll_component_id === 'undefined'){
+                    nlog(true, "Failed to load lazy, Component id not defined");
+                    return;
+                }
+                //$("#" + nll_component_id ).append("<div class='overlay'>LOADING...</div>");
+
+                $.ajax({
+                    url: nll_href,
+                    context: document.body
+                }).done(function(data) {
+                    
+                    nlog(false, "Load complete");
+
+                    $("#" + nll_component_id ).html("Hello");
+                    //$(this).html("Hello");
+                    $(".ndlr_lazyloader").unbind();
+                    
+                    bind_ndlr_lazyloader();
+
+                }).fail(function(xhr, status, error) {
+                    nlog(true, "Failed to load data from request.", false, $(".ndlr_lazyloader"));
+                }).always(function(e) {
+
+                    nlog(false, "Lazy Loading Request Finished ", false );
+                });
+            }
+            function bind_ndlr_lazyloader(elem){
+                
+                $(".ndlr_lazyloader").on('click', function(e){
+                    //console.log("Requesting..." + $(elem).html("LOADING"));
+                    e.preventDefault();
+                    
+                    load_lazy($(this));
+                    
+                });
+            }
+            function auto_load_lazy_data(){
+                $(".ndlr_lazyloader").each(function(i, elem){
+                    bind_ndlr_lazyloader(elem);
+                });
+            }
+
+
+            $(document).ready(function(){
+                bind_ndlr_lazyloader();
+                //auto_load_lazy_data();
+                
+                //load_lazy();
+                $(".ndlr_lazyloader").each(function(i, obj) {
+                    load_lazy($(obj));
+                });
+            });
+
+        </script>
+        <div class="main">
+            <div id="ndlr_notifications"></div>
+            <div id="first">
+                <a href="https://www.google.com">google</a>
+            </div>
+            <div id="second">
+                <div class="entities_menu">
+                    <a href="http://localhost:3000/nodular" class="ndlr_lazyloader" nll-component-id="entities_content">load entities</a>
+                </div>
+                <div id="entities_content">
+                    [Nothing to show yet]
+                </div>
+            </div>
+            <div id="third">
+                <a href="https://www.twitter.com">twitter</a>
+            </div>
+        </div>
+    </body>
+</html>

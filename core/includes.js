@@ -1,0 +1,1 @@
+exports.config_mgr = require(__dirname + '/ConfigMgr.js');
