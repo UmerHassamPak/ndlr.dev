@@ -13,8 +13,8 @@ class DataRecord {
     this.render   = render;
   }
   
-  getResource(){ return this.resource }
-  getQueryParams(){ return this.request.query }
+  //getResource(){ return this.resource }
+  //getQueryParams(){ return this.request.query }
   /*
   #columnsVal;
   columns(val){ this.#columnsVal = val; }
