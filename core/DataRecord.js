@@ -3,14 +3,12 @@ const dbManager = require("./pgPoolManager")
 const logger = require("./Logger")
 
 class DataRecord {
-  request;
+  //request;
   resource;
   render;
   
-  constructor(request, resource, render){
-    this.request  = request;
+  constructor(resource){
     this.resource = resource;
-    this.render   = render;
   }
   
   //getResource(){ return this.resource }

@@ -52,13 +52,42 @@ module.exports.resolve_route = (res) => {
 /* IMPORTS */
 
 // Project Integrity Manager
-const integrityManager =  require('./../PIManager')
+const integrityManager =  require('./../PIManager');
+const DataRecord = require('../DataRecord');
 
 /* VARIABLES */
 //module.exports.routes = []
 var routes = includes.routes;
 
 /* HELPER METHODS */
+function htmlTableFromJson(jsonData){
+    var html_string = "<table>";
+    html_string += "<tr>";
+    Object.keys(jsonData[0]).forEach(function(key) {
+      html_string += "<th>"+key+"</th>";
+    })
+    html_string += "</tr>";
+    
+    jsonData.forEach(function(obj, i) {
+      html_string += "<tr>";
+      Object.keys(obj).forEach(function(key, j) {
+        html_string += "<td>"+obj[key]+"</td>";
+      })
+      html_string += "</tr>";
+    })
+    
+    html_string += "</table>";
+  
+    return html_string;
+}
+// function htmlTableFromRowsArray(jsonArray){
+//     var result = '<table>'
+//     jsonArray.forEach((item)=>{
+//         result += item
+//     })
+//     return result
+// }
+
 function creates_files_table(files){
     str = '<ul>'
     files.forEach((file)=>{
@@ -214,32 +243,60 @@ module.exports.page_entity = (req, res) => {
     `
 
     
-    //console.log("routes: " + JSON.stringify() )
-    // console.log("routes: " + JSON.stringify(found_route) )
-    load_request(url, (err, data)=>{
+//     //console.log("routes: " + JSON.stringify() )
+//     // console.log("routes: " + JSON.stringify(found_route) )
+//     load_request(url, (err, data)=>{
         
-        err_alert = '<div class="alert alert-danger" role="alert">'+err+'</div>'
-        entity_not_found = `<div class="alert alert-danger" role="alert">
-        <h4 class="alert-heading">Entity Not Found!</h4>
-        <ul>
-        <li>Create Entity through <b>"nodular dashboard > Entites > Actions > New Entity"</b> Fill the form to create files required for a new entity.</li>
-        <li>Add the entity route to <b>config/routes.js</b></li>
-        <li>Make sure the entity exists in database by running migrations</li>
-        </ul>
-        </div>`
+        // err_alert = '<div class="alert alert-danger" role="alert">'+err+'</div>'
+        // entity_not_found = `<div class="alert alert-danger" role="alert">
+        // <h4 class="alert-heading">Entity Not Found!</h4>
+        // <ul>
+        // <li>Create Entity through <b>"nodular dashboard > Entites > Actions > New Entity"</b> Fill the form to create files required for a new entity.</li>
+        // <li>Add the entity route to <b>config/routes.js</b></li>
+        // <li>Make sure the entity exists in database by running migrations</li>
+        // </ul>
+        // </div>`
 
+//         let entity_container = `
+//<div class='container'>
+//    <div class='row'><h1>${entity_name}</h1></div>
+//    <div class='row'>
+//        <div class='col'>
+//            ${found_route ? (err ? err_alert : '<div>This is where the table goes</div>') : entity_not_found}
+//       </div>
+//    </div>
+//</div>
+//     `
+//         res.send( generate_page(req, entity_container) )
+//     })
+
+
+entity_not_found = `<div class="alert alert-danger" role="alert">
+<h4 class="alert-heading">Entity Not Found!</h4>
+<ul>
+<li>Create Entity through <b>"nodular dashboard > Entites > Actions > New Entity"</b> Fill the form to create files required for a new entity.</li>
+<li>Add the entity route to <b>config/routes.js</b></li>
+<li>Make sure the entity exists in database by running migrations</li>
+</ul>
+</div>`
+
+    let dr = new DataRecord(entity_name)
+    dr.load((err, result)=>{
+        err_alert = '<div class="alert alert-danger" role="alert">'+err+'</div>'
         let entity_container = `
 <div class='container'>
     <div class='row'><h1>${entity_name}</h1></div>
     <div class='row'>
         <div class='col'>
-            ${found_route ? (err ? err_alert : '<div>This is where the table goes</div>') : entity_not_found}
+            ${found_route ? (err ? err_alert : htmlTableFromJson(result.rows) ) : entity_not_found}
         </div>
     </div>
 </div>
     `
+
         res.send( generate_page(req, entity_container) )
     })
+    
 }
 
 module.exports.new_entity = (req, res) => {
