@@ -13,6 +13,8 @@ const migrationHandler = require("./../MigrationsHandler")
 // Needed for create entities
 var pluralize = require('pluralize')
 
+const DataRecord = require('../DataRecord')
+
 //var include = require(__dirname + '/../includes.js');
 //const config_mgr = require(__dirname + '/NodularInterprator.js');
 //const config_mgr = require('../ConfigMgr.js');
@@ -62,6 +64,26 @@ const integrityManager =  require('./../PIManager')
 var routes = includes.routes;
 
 /* HELPER METHODS */
+function htmlTableFromJson(jsonData){
+    var html_string = "<table>";
+    html_string += "<tr>";
+    Object.keys(jsonData[0]).forEach(function(key) {
+      html_string += "<th>"+key+"</th>";
+    })
+    html_string += "</tr>";
+
+    jsonData.forEach(function(obj, i) {
+      html_string += "<tr>";
+      Object.keys(obj).forEach(function(key, j) {
+        html_string += "<td>"+obj[key]+"</td>";
+      })
+      html_string += "</tr>";
+    })
+
+    html_string += "</table>";
+
+    return html_string;
+}
 function creates_files_table(files){
     str = '<ul>'
     files.forEach((file)=>{
@@ -207,42 +229,67 @@ module.exports.page_entity = (req, res) => {
     let url = fullUrl + entity_url//'/nodular/entity?name='+entity_name
     
 
-    let entity_not_found = `
-<b>Failed to load entity data. Make sure the following steps are completed:</b>
-<ul>
-    <li>Create Entity through <b>"nodular dashboard > Entites > Actions > New Entity"</b> Fill the form to create files required for a new entity.</li>
-    <li>Add the entity route to <b>config/routes.js</b></li>
-    <li>Make sure the entity exists in database by running migrations</li>
-</ul>
-    `
+//     let entity_not_found = `
+// <b>Failed to load entity data. Make sure the following steps are completed:</b>
+// <ul>
+//     <li>Create Entity through <b>"nodular dashboard > Entites > Actions > New Entity"</b> Fill the form to create files required for a new entity.</li>
+//     <li>Add the entity route to <b>config/routes.js</b></li>
+//     <li>Make sure the entity exists in database by running migrations</li>
+// </ul>
+//     `
 
     
     //console.log("routes: " + JSON.stringify() )
     // console.log("routes: " + JSON.stringify(found_route) )
-    load_request(url, (err, data)=>{
+//     load_request(url, (err, data)=>{
         
-        err_alert = '<div class="alert alert-danger" role="alert">'+err+'</div>'
-        entity_not_found = `<div class="alert alert-danger" role="alert">
-        <h4 class="alert-heading">Entity Not Found!</h4>
-        <ul>
-        <li>Create Entity through <b>"nodular dashboard > Entites > Actions > New Entity"</b> Fill the form to create files required for a new entity.</li>
-        <li>Add the entity route to <b>config/routes.js</b></li>
-        <li>Make sure the entity exists in database by running migrations</li>
-        </ul>
-        </div>`
+//         err_alert = '<div class="alert alert-danger" role="alert">'+err+'</div>'
+//         entity_not_found = `<div class="alert alert-danger" role="alert">
+//         <h4 class="alert-heading">Entity Not Found!</h4>
+//         <ul>
+//         <li>Create Entity through <b>"nodular dashboard > Entites > Actions > New Entity"</b> Fill the form to create files required for a new entity.</li>
+//         <li>Add the entity route to <b>config/routes.js</b></li>
+//         <li>Make sure the entity exists in database by running migrations</li>
+//         </ul>
+//         </div>`
 
-        let entity_container = `
-<div class='container'>
-    <div class='row'><h1>${entity_name}</h1></div>
-    <div class='row'>
-        <div class='col'>
-            ${found_route ? (err ? err_alert : '<div>This is where the table goes</div>') : entity_not_found}
-        </div>
-    </div>
-</div>
-    `
-        res.send( generate_page(req, entity_container) )
-    })
+//         let entity_container = `
+// <div class='container'>
+//     <div class='row'><h1>${entity_name}</h1></div>
+//     <div class='row'>
+//         <div class='col'>
+//             ${found_route ? (err ? err_alert : '<div>This is where the table goes</div>') : entity_not_found}
+//         </div>
+//     </div>
+// </div>
+//     `
+//         res.send( generate_page(req, entity_container) )
+//     })
+entity_not_found = `<div class="alert alert-danger" role="alert">
+ <h4 class="alert-heading">Entity Not Found!</h4>
+ <ul>
+ <li>Create Entity through <b>"nodular dashboard > Entites > Actions > New Entity"</b> Fill the form to create files required for a new entity.</li>
+ <li>Add the entity route to <b>config/routes.js</b></li>
+ <li>Make sure the entity exists in database by running migrations</li>
+ </ul>
+ </div>`
+
+     let dr = new DataRecord(entity_name)
+     dr.load((err, result)=>{
+         err_alert = '<div class="alert alert-danger" role="alert">'+err+'</div>'
+         let entity_container = `
+ <div class='container'>
+     <div class='row'><h1>${entity_name}</h1></div>
+     <div class='row'>
+         <div class='col'>
+             ${found_route ? (err ? err_alert : htmlTableFromJson(result.rows) ) : entity_not_found}
+         </div>
+     </div>
+ </div>
+     `
+
+         res.send( generate_page(req, entity_container) )
+     })
 }
 
 module.exports.new_entity = (req, res) => {
@@ -492,9 +539,8 @@ let html_top = `
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Our first page">
-	<meta name="keywords" content="html tutorial template">
-    <title>Bootstrap demo</title>
+    <meta name="description" content="Nodular is a fastpaced, robust API Development Framework">
+    <title>Nodular CRM</title>
     
     <!-- JQuert -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
