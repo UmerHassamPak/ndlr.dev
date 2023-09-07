@@ -1,0 +1,130 @@
+// File Management
+const fileManager = require("./fileManager")
+
+// Logger
+const logger = require("./Logger")
+
+// Logger
+const DataRecord = require("./DataRecord")
+
+// DB Handler
+const pgPoolManager = require("./pgPoolManager")
+
+// VARIABLES
+const migrationPath = "./db/migrations/"
+
+/* CREATING MIGRATION FILES */
+module.exports.cmfCreateEntity = (entity_name, columns, callback)=>{
+    success = false;
+    let totalFiles = 1;
+
+    fileManager.readFilesInFolder("./db/migrations/",(error, files) => { 
+        if (error) {
+            return "Failed to read migrations folder. Make sure the folder exists with proper permissions. run file integrity check to attempt an auto fix."
+        }
+
+        totalFiles = files.length; // return the number of files
+
+        let full_migration_filepath = `./db/migrations/${logger.fix_number(totalFiles + 1)}_create_${entity_name}.json`
+
+        
+        
+        fileManager.createFile(full_migration_filepath, `{
+"up":" CREATE TABLE ${entity_name} ( id serial NOT NULL PRIMARY KEY, ${columns}, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW() );",
+"down":"DROP TABLE ${entity_name};"
+}`, callback)
+
+    })
+}
+
+/* RUNNING MIGRATIONS */
+module.exports.migrateFile = (file_name, callback) => {
+    migrateFile(file_name, callback)
+}
+
+module.exports.migrateAll = ()=>{
+    logger.log("Starting Migration Process")
+    migrateAll((err, file_name, data)=>{
+        if (err){
+            console.log("ERR: " + err)
+        } else {
+            
+            if (data.migrated){
+                logger.log_check('Migrating '+file_name+': Already Migrated.', 'skip')
+            } else {
+                let migration_query = data.up
+                logger.log("Running Query: " + migration_query)
+                // Running migration
+                dbManager.execute(migration_query, (err, result)=>{
+                    logger.log_check(result ? JSON.stringify(result.rows) : err, err ? 'fail' : 'pass')
+                    //callback(err, result)
+                    if (!err){
+                        data.migrated = true
+                        // Update the migration file and change migrated to true
+                        fileManager.createFile(`./db/migrations/${file_name}`, JSON.stringify(data), (err, dt)=>{
+                            logger.log_check(result ? `Updated migration File (${file_name})` : err, err ? 'fail' : 'pass')
+                        })
+                    }
+                });
+                // logger.log_check('Migrating File: ('+file_name+')', 'pass')
+            }
+        }
+        
+    })
+}
+
+function migrateAll(callback) {
+
+    try {
+        fileManager.readFilesInFolder(migrationPath, (err, files)=>{
+            for (const file of files) {
+                migrateFile(file, callback);
+            }
+        });
+          
+      } catch (err) {
+        callback(err, null)
+      }
+}
+
+function loadFile(file, callback) {
+    fileManager.readFile(migrationPath +"/"+ file, (err, data) => {
+        // if there's an error, log it and return
+        if (err) {
+            callback(err, file, data)
+            return false
+        }
+        // Print the string representation of the data
+        const jsonData =  JSON.parse(data.toString());
+
+        callback(err, file, jsonData)
+    })
+}
+
+// callback (err, data)
+function migrateFile(file, callback){
+    
+    loadFile(file, (err, file, data)=>{
+        if (err){
+            logger.log_check('Migrating '+file_name+': Failed with error('+err+').', 'fail')
+            callback(err, data)
+        } else {
+            let migration_query = data.up
+            logger.log("Running Query: " + migration_query)
+            // Running migration
+            logger.log("dbManager.execute: " + JSON.stringify(pgPoolManager) )
+            pgPoolManager.execute(migration_query, (err, result)=>{
+                logger.log_check(result ? JSON.stringify(result.rows) : err, err ? 'fail' : 'pass')
+                callback(err, result)
+                // if (!err){
+                //     data.migrated = true
+                //     // Update the migration file and change migrated to true
+                //     fileManager.createFile(`./db/migrations/${file_name}`, JSON.stringify(data), (err, dt)=>{
+                //         logger.log_check(result ? `Updated migration File (${file_name})` : err, err ? 'fail' : 'pass')
+                //     })
+                // }
+            });
+            // logger.log_check('Migrating File: ('+file_name+')', 'pass')
+        }        
+    })
+}

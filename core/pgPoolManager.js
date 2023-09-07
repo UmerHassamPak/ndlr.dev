@@ -1,13 +1,32 @@
+
 const pg = require('pg')
-const dbconfig = module.parent.parent.parent.require("./db/dbconfig");
+// const dbconfig = module.parent.parent.parent.require("./db/dbconfig");
+// const dbconfig = null;
+// if(module.parent.parent.require("./db/dbconfig")){
+//     dbconfig = module.parent.parent.require("./db/dbconfig");
+// } else {
+//     console.log("Failed to load DBConfig")
+// }
+const includes = require('./../includes')
+const dbconfig = includes.dbconfig
+
 
 const env = (process.env.ENV || 'development')
 
-const host     = (process.env.HOST     || dbconfig["envs"][env]["host"]     || 'localhost');
-const database = (process.env.DATABASE || dbconfig["envs"][env]["database"] || '');
-const port     = (process.env.PORT     || dbconfig["envs"][env]["port"]     || 1234);
-const username = (process.env.USERNAME || dbconfig["envs"][env]["username"] || 'postgres');
-const password = (process.env.PASSWORD || dbconfig["envs"][env]["password"] || '');
+if (!dbconfig) { return }
+
+const host     = (process.env.HOST     || (dbconfig ? dbconfig["envs"][env]["host"]     : 'localhost') );
+const database = (process.env.DATABASE || (dbconfig ? dbconfig["envs"][env]["database"] : '') );
+const port     = (process.env.PORT     || (dbconfig ? dbconfig["envs"][env]["port"]     : 1234) );
+const username = (process.env.USERNAME || (dbconfig ? dbconfig["envs"][env]["username"] : 'postgres') );
+const password = (process.env.PASSWORD || (dbconfig ? dbconfig["envs"][env]["password"] : '') );
+
+//console.log("t: " + JSON.stringify(process.env.HOST || (dbconfig ? dbconfig["envs"][env]["host"] : 'localhost') ) )
+// console.log("host    : " + JSON.stringify(host) )
+// console.log("database: " + JSON.stringify(database)  )
+// console.log("port    : " + JSON.stringify(port) )
+// console.log("username: " + JSON.stringify(username)  )
+// console.log("password: " + JSON.stringify(password) )
 
 const pool = new pg.Pool({
     host: host,
@@ -38,13 +57,12 @@ function execute(query, callback){
     });
 }
 
+// callback (err, data)
 module.exports.execute = (query, callback) => {
-
     
     execute(query, callback)
 
     //console.log("DATA: "  + data)
-
     //execute("SELECT * FROM task", callback)
 }
 
@@ -84,5 +102,3 @@ module.exports.migrateDB = (direction)=>{s
         execute(jsonData[direction]);
     });
 }
-
-

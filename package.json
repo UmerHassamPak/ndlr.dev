@@ -1,6 +1,6 @@
 {
-  "name": "ndlr.dev",
-  "version": "0.0.1",
+  "name": "ndlr.pro",
+  "version": "0.0.4",
   "description": "Nodular is a web API framwork, designed to automate away the tedious mundane task of building the same REST controllers that are used in every API",
   "main": "index.js",
   "scripts": {
@@ -9,10 +9,12 @@
   "author": "Umer Hassam",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/UmerHassamPak/ndlr.dev"
+    "url": "git+https://github.com/UmerHassamPak/ndlr.pro"
   },
   "keywords": [
     "node",
+    "webservices",
+    "webservice",
     "backend",
     "API",
     "framework"
@@ -21,6 +23,7 @@
   "dependencies": {
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.1",
-    "pg": "^8.9.0"
+    "pg": "^8.9.0",
+    "pluralize": "^8.0.0"
   }
 }

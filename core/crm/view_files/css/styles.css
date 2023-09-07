@@ -1,3 +1,9 @@
+input, select {
+    border: 1px solid #EEE;
+    border-radius: 4px;
+    max-width: 500px;
+    height: 35px;
+}
 .overlay{
     background-color: black;
     width:100%;
@@ -5,6 +11,9 @@
     position:absolute;
     z-index: 100;
     x:0;
+}
+.mw-2{
+    min-width: 120px;
 }
 #ndlr_notifications{
     position:absolute;
@@ -38,4 +47,68 @@
 
 .dashboard_header{
     color:red;
+}
+
+/* INTEGRITY CHECK */
+.integrity_check_container{
+    width: 80%;
+    margin: 0 auto;
+    margin-top: 50px;
+}
+.integrity_results{
+    width:40%;
+    margin: 0 auto;
+}
+
+
+.integrity_check_container ul li {
+    border-bottom:1px solid #EEE;
+}
+.fs_row:hover{ background-color: #EEE; }
+.fs_path{
+
+}
+.fs_exists{
+    width:100px
+}
+
+.ndlr_container_section{
+    margin-top:20px
+}
+
+/* MIGRATIONS */
+.ndlr_container_files{
+    background-color: #f8f9fa;
+    padding:0px 10px;
+    filter: drop-shadow(3px 1px 3px #EEE);
+}
+.ndlr_container_main_actions{
+    padding:10px 42px;
+}
+.ndlr_row_files {
+    padding: 10px;
+    border-bottom: 1px solid #EEE;
+}
+.ndlr_row_files:hover {
+    background:#EEE;
+}
+.ndlr_migfile_col_id{
+    width: 10%;
+    max-width: 50px;
+}
+.ndlr_migfile_col_id:hover{
+    border-right: 1px solid #AAA;
+}
+.ndlr_migfile_col_name{
+    flex: 8 0 0%;
+}
+.ndlr_migfile_col_name:hover{
+    border-left: 1px solid #AAA;
+    border-right: 1px solid #AAA;
+}
+.ndlr_migfile_col_actions{
+    width: 10%;
+}
+.ndlr_migfile_col_actions:hover{
+    border-left: 1px solid #AAA;
 }

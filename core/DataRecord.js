@@ -1,5 +1,6 @@
 
 const dbManager = require("./pgPoolManager")
+const logger = require("./Logger")
 
 class DataRecord {
   request;
@@ -14,7 +15,7 @@ class DataRecord {
   
   getResource(){ return this.resource }
   getQueryParams(){ return this.request.query }
-  
+  /*
   #columnsVal;
   columns(val){ this.#columnsVal = val; }
   
@@ -71,11 +72,12 @@ class DataRecord {
         callback(err, result)
       });
     }
-
+*/
 
     kQCommand = "SELECT"
     kQColumns = " * "
     kQCondition = ""
+    kQInsert = ""
     kQConnector = "AND"
     kQFinal = "";
 
@@ -87,17 +89,35 @@ class DataRecord {
         switch(this.kQCommand){
           case "SELECT":
               this.kQFinal = this.kQCommand + this.kQColumns + "FROM " + this.resource + (this.kQCondition ? (" WHERE " + this.kQCondition) : "")
+              
             break;
+          case "INSERT":
+            this.kQFinal = this.kQCommand + " INTO " + this.resource + " " + this.kQInsert + " RETURNING *"
+            break;
+            case "UPDATE":
+              this.kQFinal = this.kQCommand + " " + this.resource + " SET " + this.kQInsert + (this.kQCondition ? (" WHERE " + this.kQCondition) : "") + " RETURNING *"
+              break;
+            case "DELETE":
+                this.kQFinal = this.kQCommand + " FROM " + this.resource + (this.kQCondition ? (" WHERE " + this.kQCondition) : "")
+                break;
             default:
         }
       }
     }
 
-    load(callback){
-      this.#createQuery()
+    logQuery(){ 
+      this.#createQuery() 
+      
+      logger.log("Query: " + this.kQFinal)
 
-      console.log("Running Query: " + this.kQTable)
+      return this
+    }
+
+    load(callback){
+      this.logQuery()
+
       dbManager.execute(this.kQFinal, (err, result)=>{
+        logger.log_check(result ? JSON.stringify(result.rows) : err, err ? 'fail' : 'pass')
         callback(err, result)
       });
       
@@ -109,16 +129,6 @@ class DataRecord {
       this.kQColumns = ` ${colArray.join(',')} `
       return this
     }
-
-    /* CREATE */
-
-    // This method creates a new object based on the type
-    create(objJSON){}
-
-    /* UPDATE */
-
-    // Update the values provided
-    update(valuesJSON){}
 
     /*  READ  */
 
@@ -132,18 +142,9 @@ class DataRecord {
 
     // This method return the object with the given id
     find(id){
-      //kQCondition.push("id = " + id);
-      kQCondition = "id = " + id
+      this.kQCondition = "id = " + id
+      return this
     }
-
-    // Return an array of objects filtered by the condition provided
-    // where(whereJSON){
-      // for(var attributename in conditionJSON){
-      //   //console.log(attributename+": "+myobject[attributename]);
-      //   kQCondition.push(attributename + " = " + id);
-      // }
-    //   //kQCondition.push("id = " + id);
-    // }
 
     // This method is responsible for updating the where clause respecting any previous values
     overwriteWhere(whereClause){
@@ -210,13 +211,43 @@ class DataRecord {
     // {"col":["val1","val2"]}
     whereBetween(first_value, second_value){}
 
+    /* INSERT */
+    // This method creates a new object based on the type
+    create(objJSON){
+      
+      let cols = `${Object.keys(objJSON).join(",")}`
+      //var vals = Object.keys(objJSON).map(x => objJSON[x]).join(",")
+      var vals = Object.values(objJSON).join(",")
+
+      this.kQCommand = "INSERT"
+      this.kQInsert = `(${cols}) VALUES (${vals})`
+
+      return this
+    }
+
+    /* UPDATE */
+    update(objJSON){
+      var setArr = []
+
+      Object.keys(objJSON).forEach((key)=>{
+        setArr.push(`${key} = ${objJSON[key]}`)
+      })
+
+      this.kQCommand = 'UPDATE'
+      this.kQInsert = setArr.join(', ')
+
+      return this
+    }
+
+    
+
     /* DELETE */
     
     // Destroy an object based on the id provided
-    destroy(id){}
-
-    // Destroy all objects based on the condition provided
-    destroyBy(conditionJSON){}
+    delete(){
+      this.kQCommand = 'DELETE';
+      return this;
+    }
 }
 module.exports = DataRecord
 
