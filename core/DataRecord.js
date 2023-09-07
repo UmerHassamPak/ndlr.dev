@@ -3,16 +3,18 @@ const dbManager = require("./pgPoolManager")
 const logger = require("./Logger")
 
 class DataRecord {
-  //request;
+  request;
   resource;
   render;
   
-  constructor(resource){
+  constructor(request, resource, render){
+    this.request  = request;
     this.resource = resource;
+    this.render   = render;
   }
   
-  //getResource(){ return this.resource }
-  //getQueryParams(){ return this.request.query }
+  getResource(){ return this.resource }
+  getQueryParams(){ return this.request.query }
   /*
   #columnsVal;
   columns(val){ this.#columnsVal = val; }
