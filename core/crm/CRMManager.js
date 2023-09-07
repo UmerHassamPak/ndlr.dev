@@ -199,27 +199,27 @@ module.exports.page_entities = (req, res) => {
     res.send( generate_page(req, entities_list) )
 }
 
-function load_request(url, callback){
+// function load_request(url, callback){
     
-    http.get(url, (resp) => {
-    let data = '';
+//     http.get(url, (resp) => {
+//     let data = '';
 
-    // A chunk of data has been received.
-    resp.on('data', (chunk) => {
-        data += chunk;
-    });
+//     // A chunk of data has been received.
+//     resp.on('data', (chunk) => {
+//         data += chunk;
+//     });
 
-    // The whole response has been received. Print out the result.
-    resp.on('end', () => {
-        console.log(JSON.parse(data).explanation);
-        callback(null, data)
-    });
+//     // The whole response has been received. Print out the result.
+//     resp.on('end', () => {
+//         console.log(JSON.parse(data).explanation);
+//         callback(null, data)
+//     });
 
-    }).on("error", (err) => {
-        console.log("Error: " + err.message);
-        callback(err, null)
-    });
-}
+//     }).on("error", (err) => {
+//         console.log("Error: " + err.message);
+//         callback(err, null)
+//     });
+// }
 module.exports.page_entity = (req, res) => {
     let entity_name = req.query['name']
     let routes = module.exports.routes
