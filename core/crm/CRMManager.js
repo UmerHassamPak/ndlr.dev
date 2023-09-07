@@ -10,6 +10,9 @@ const fileManager = require("./../fileManager")
 // DB Management
 const migrationHandler = require("./../MigrationsHandler")
 
+// Needed for create entities
+var pluralize = require('pluralize')
+
 //var include = require(__dirname + '/../includes.js');
 //const config_mgr = require(__dirname + '/NodularInterprator.js');
 //const config_mgr = require('../ConfigMgr.js');
@@ -275,7 +278,7 @@ module.exports.new_entity = (req, res) => {
 
             $.post( "/nodular/create_entity", { "entity_name": entity_name,"sub_path": sub_path, "columns": columns }, function(data) {
                 //$( "#result" ).html( data );
-                window.location.replace("nodular/entity?name="+entity_name);
+                window.location.replace("/nodular/entity?name="+entity_name);
             });
 
         })
@@ -399,7 +402,7 @@ module.exports.create_entity = (req, res) => {
     })
 
     // Create Migration File
-    migrationHandler.cmfCreateEntity(req.body.entity_name, req.body.columns,(err)=>{
+    migrationHandler.cmfCreateEntity(pluralize(req.body.entity_name.toLowerCase()), req.body.columns,(err)=>{
         if (err){
             logger.log_check("Failed to create the Migration file: ["+err+"]", "fail")
         } else {
@@ -455,7 +458,6 @@ module.exports.migrations_list = (req, res) => {
 }
 
 module.exports.createrelation = (req, res) => {
-    console.log("HERE")
     res.send( '{ok:true,message:"Relationship Created."}' )
 }
 
