@@ -4,23 +4,6 @@ input, select {
     max-width: 500px;
     height: 35px;
 }
-table{
-    filter: drop-shadow(3px 1px 3px #EEE);
-    background-color: #f8f9fa;
-    width:90%;
-    margin:0 auto;
-}
-th {
-    background-color: #AAA;
-    padding:10px 0px;
-    text-align: center;
-}
-td{
-    padding:10px 10px;
-}
-tr:hover{
-    background-color: #EEE;
-}
 .overlay{
     background-color: black;
     width:100%;
